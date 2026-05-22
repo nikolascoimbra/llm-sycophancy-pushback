@@ -229,7 +229,8 @@ def _cost_usd(provider: str, in_tok: int, out_tok: int) -> float:
     return (in_tok * pin + out_tok * pout) / 1_000_000
 
 
-def main(limit_per_provider: int | None) -> int:
+def main(limit_per_provider: int | None,
+          only_provider: str | None) -> int:
     load_dotenv(REPO_ROOT / ".env")
     if not ELIGIBLE.exists() or not DISTRACTORS.exists():
         sys.exit(f"Missing {ELIGIBLE} or {DISTRACTORS}.")
@@ -243,7 +244,11 @@ def main(limit_per_provider: int | None) -> int:
 
     grand_n_new = 0
     grand_n_cached = 0
-    for spec in PROVIDERS:
+    providers_to_run = (
+        [p for p in PROVIDERS if p.provider == only_provider]
+        if only_provider else PROVIDERS
+    )
+    for spec in providers_to_run:
         prov_questions = eligible[eligible["provider"] == spec.provider]
         if limit_per_provider:
             prov_questions = prov_questions.head(limit_per_provider)
@@ -327,5 +332,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit-per-provider", type=int, default=None,
                         help="Cap the number of questions per provider (smoke test).")
+    parser.add_argument("--provider", default=None,
+                        help="Run only one provider (anthropic_opus / openai_gpt5 / "
+                             "deepseek_v3 / llama4_maverick). Default: all four.")
     args = parser.parse_args()
-    raise SystemExit(main(args.limit_per_provider))
+    raise SystemExit(main(args.limit_per_provider, args.provider))

@@ -32,3 +32,28 @@ The 0.30 threshold corresponds to "above one-in-three confidence" — interpreta
 3. If a reviewer requests augmentation we can add it later; the cost and time are small.
 
 **Decision-rule impact.** None. We report per-provider Holm-corrected results; underpowered providers are flagged in the limitations section.
+
+## A3 — Extended-panel descriptive addition (post-tag, 2026-05-21)
+
+**Original (PRE_REGISTRATION.md §2.1):** Four-provider panel (Claude Opus 4.5, GPT-5, Llama 4 Maverick, DeepSeek V3.2).
+
+**Amended to:** The pre-registered four-provider panel is unchanged for H1–H5 confirmatory analyses. Five additional providers are added as a descriptive exploratory extension only:
+
+| Added model | API | Why |
+|---|---|---|
+| GPT-4o (`gpt-4o`) | OpenAI direct | Central to the April–May 2025 OpenAI sycophancy rollback episode; any sycophancy paper that doesn't include GPT-4o will be asked about it by reviewers. |
+| GPT-5-mini (`gpt-5-mini`) | OpenAI direct | Within-OpenAI capability-scaling comparison. |
+| Claude Sonnet 4.6 (`us.anthropic.claude-sonnet-4-6`) | Bedrock | Within-Anthropic comparison vs Opus 4.5; tests whether the Claude calibration / sycophancy advantage is a family trait. |
+| Mistral Large 3 (`mistral.mistral-large-3-675b-instruct`) | Bedrock | French lab; new vendor in the panel. |
+| Amazon Nova Pro (`us.amazon.nova-pro-v1:0`) | Bedrock | Amazon lab; new vendor in the panel. |
+
+**Reason.** The four-provider panel is sufficient for the pre-registered H1–H5 tests but covers only three labs (Anthropic, OpenAI, Meta, DeepSeek). The descriptive cross-laboratory contribution of the paper is significantly strengthened by including GPT-4o (for direct connection to the 2025 rollback literature) and two additional labs (Mistral, Amazon). The within-vendor comparisons (Sonnet vs Opus; GPT-5-mini vs GPT-5) probe whether the per-provider sycophancy rate is a model-family property or a model-size property.
+
+**Decision-rule impact.** H1–H5 confirmatory tests are unchanged and still defined on the original four providers; the new providers do not participate in those tests. H5 cross-paper Spearman remains at n = 4 because the calibration paper did not measure these five additional models.
+
+A new exploratory section (E4) will report per-provider flip rates for the extended nine-provider panel descriptively, with the explicit caveat that the new providers were added post-tag and do not enter the confirmatory family.
+
+**Budget.** Estimated additional cost ~$5; total study budget remains under the $20 ceiling.
+
+**Eligibility for new providers.** The same eligibility rule (correct AND parsed_confidence ≥ 0.30) is applied to each new provider after running calibration-style initial-turn verbalized inference on the same 500 SimpleQA questions. Per-provider eligible counts will be reported transparently in the paper; providers with fewer than 40 eligible questions are dropped from the descriptive panel.
+
