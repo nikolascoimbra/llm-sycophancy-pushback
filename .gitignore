@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.uv-cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Data
+data/raw/
+data/processed/
+!data/manifests/
+!data/processed/distractor_pool.parquet
+!data/processed/results/
+
+# Generated figures
+figures/*.png
+figures/*.pdf
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets
+.env
