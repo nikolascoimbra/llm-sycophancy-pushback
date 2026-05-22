@@ -16,28 +16,37 @@ Design choice: a single tractable empirical question with a clean measurement pr
 
 The connection to the calibration paper is direct. A model that overstates its confidence may either (a) drop its answer easily under pushback because it has no real internal commitment, or (b) hold its answer because the inflated confidence is itself rigid. The two papers together can answer whether overconfidence in LLMs is "fragile bluster" (a) or "stubborn certainty" (b), which is a question the field has not yet resolved.
 
+**Novelty positioning** (post-Phase-0 audit). Two 2025 papers (Fanous et al. SycEval, arXiv:2502.08177; Cheng et al. ELEPHANT, arXiv:2505.13995) already measure sycophancy across several providers. SycEval in particular runs a closely related protocol on GPT-4o, Claude-3.5-Sonnet, and Gemini-1.5-Pro. The three things we add that they do not are: (i) extension to the 2026 frontier panel that includes the open-weights frontier (Llama 4 Maverick, DeepSeek V3.2) where overconfidence is most severe in our calibration data; (ii) the politeness vs. terseness vs. assertive-credential modulation axis on the pushback prompt; (iii) the cross-paper join between per-provider sycophancy flip rate and per-provider verbalized-confidence ECE measured on the same models on the same question set. The cross-paper join is the most novel of the three and should be the headline result. Without it, this study is redundant with SycEval.
+
 ## 2. Topic validation against the literature
 
-The foundational study is Sharma et al. (2023), "Towards Understanding Sycophancy in Language Models" (Anthropic, arXiv:2310.13548). They show that frontier LLMs systematically agree with user-stated false premises and revise correct answers when the user pushes back. The release included an evaluation harness (`sycophancy-eval`) on GitHub.
+The foundational study is Sharma et al. (2023), "Towards Understanding Sycophancy in Language Models" (Anthropic, arXiv:2310.13548; ICLR 2024). The study covers five Anthropic / OpenAI / Meta assistants and includes the "Are You Sure?" subtask in which a user challenges a model's correct answer; the paper traces sycophancy to human-preference-data optimisation. The sycophancy-eval dataset is released separately at `github.com/meg-tong/sycophancy-eval` (no LICENSE file; we will re-derive prompts from the paper's described templates rather than copy verbatim JSONL).
 
-Perez et al. (2022), "Discovering Language Model Behaviors with Model-Written Evaluations" (arXiv:2212.09251), introduced the model-written behavioural evaluations technique that several sycophancy papers reuse, including a sycophancy probe in their released suite.
+Perez et al. (2022), "Discovering Language Model Behaviors with Model-Written Evaluations" (arXiv:2212.09251), introduced the model-written behavioural evaluations technique and includes a sycophancy probe (political views, NLP, philosophy).
 
-Wei et al. (2023), "Simple synthetic data reduces sycophancy in large language models" (arXiv:2308.03958), reports that a targeted SFT intervention reduces sycophancy on the Sharma et al. benchmark and on a multi-task suite.
+Wei et al. (2023), "Simple synthetic data reduces sycophancy in large language models" (Google; arXiv:2308.03958), reports that a targeted SFT intervention reduces sycophancy as measured on the Perez 2022 sycophancy eval and on the authors' own NLP/addition probes.
 
-Denison et al. (2024), "Sycophancy to Subterfuge: Investigating Reward-Tampering in Language Models" (arXiv:2406.10162), studies the related downstream pattern of reward-tampering after a sycophancy-rewarding training environment.
+Denison et al. (2024), "Sycophancy to Subterfuge: Investigating Reward-Tampering in Language Models" (Anthropic; arXiv:2406.10162), studies the downstream pattern of reward-tampering after a sycophancy-rewarding training environment.
 
-Williams, Hu, Wang et al. (2024), "On Targeted Manipulation and Deception when Optimizing LLMs for User Feedback" (arXiv:2411.02306), demonstrates that RLHF-from-user-feedback induces sycophancy by construction.
+Williams, Carroll, Narang, Weisser, Murphy, Dragan (2024), "On Targeted Manipulation and Deception when Optimizing LLMs for User Feedback" (arXiv:2411.02306, ICLR 2025), demonstrates that RLHF-from-user-feedback induces sycophancy and manipulation by construction.
 
-A practical demonstration of the same phenomenon at the frontier appeared in April 2025 when OpenAI rolled back a GPT-4o update after widespread user complaints about increased sycophancy, then published a postmortem describing the training-loop dynamics that produced it.
+Papadatos & Freedman (2024), "Linear Probe Penalties Reduce LLM Sycophancy" (arXiv:2412.00967, NeurIPS 2024 SoLaR Workshop), provides a mechanistic intervention and is the cleanest published link between sycophancy and a model-internal representation.
 
-What is **under-served** in this literature:
+A practical frontier-scale demonstration of the same phenomenon appeared in April–May 2025 when OpenAI rolled back a GPT-4o update after widespread user complaints about increased sycophancy. Two OpenAI postmortems were published: "Sycophancy in GPT-4o: What happened and what we're doing about it" (`openai.com/index/sycophancy-in-gpt-4o/`, 29 Apr 2025) and "Expanding on what we missed with sycophancy" (`openai.com/index/expanding-on-sycophancy/`, 2 May 2025). The second includes a description of the training-loop dynamics and acknowledges that no sycophancy deployment-gate eval existed.
 
-- Most papers test on a single lab's models (often Anthropic's own family).
-- Almost no published study compares the 2026 frontier APIs (Claude 4.5, GPT-5, Llama 4, DeepSeek V3.2) under a single matched protocol.
-- The relationship between calibration and sycophancy is hypothesised in passing but not directly measured on a shared question set.
-- Per-question persistence-vs-correction analysis (i.e., separating "the model rightly accepted a correct correction" from "the model wrongly flipped under social pressure") is uncommon. Sharma et al. distinguish these but most follow-ups conflate them.
+Two recent 2025 papers are the most direct prior work for our cross-laboratory comparison and must be positioned carefully:
 
-The proposed study addresses these gaps without trying to replace Sharma et al.
+- **SycEval** (Fanous, Goldberg, Agarwal, Lin, Zhou, Daneshjou, Koyejo; arXiv:2502.08177, AIES 2025) evaluates sycophancy on GPT-4o, Claude-3.5-Sonnet, and Gemini-1.5-Pro. This is the closest direct comparator: same general design, three providers from the 2024 frontier. Our contribution is to extend to the 2026 frontier (Claude 4.5, GPT-5, Llama 4 Maverick, DeepSeek V3.2), add the politeness / assertiveness template axis, and join to a per-provider calibration measurement.
+- **ELEPHANT** (Cheng, Yu, Lee, Khadpe, Ibrahim, Jurafsky; arXiv:2505.13995, May 2025) measures "social sycophancy" across 11 models — emotional validation, moral endorsement, indirect language. This is a different framing (social rather than factual-correction) and is complementary rather than overlapping.
+
+What remains genuinely under-served in this literature:
+
+- The 2026 frontier panel under a single matched protocol has not been published.
+- The relationship between calibration ECE and sycophancy flip rate is hypothesised in passing but not directly measured on a shared question set with shared models.
+- Per-question persistence-vs-correction analysis (separating "the model rightly accepted a correct correction" from "the model wrongly flipped under social pressure") is uncommon and only partially handled in SycEval.
+- The politeness / assertiveness modulation axis is not the central focus of either SycEval or ELEPHANT.
+
+The proposed study addresses these specific gaps. Sharma et al. (2023), Wei et al. (2023), and SycEval (2025) are the directly-comparable prior work and must be cited as such.
 
 ## 3. Public datasets
 
@@ -45,7 +54,7 @@ The proposed study addresses these gaps without trying to replace Sharma et al.
 
 **SimpleQA (OpenAI, 2024).** 4,326 short fact-seeking questions with single indisputable answers. We already have it cached from the calibration study; we will re-use the stratified 500-question sample. SimpleQA is the right base because the gold answer is unambiguous (sycophancy detection requires unambiguous ground truth) and the per-question difficulty is intentionally high (so the model's initial-answer accuracy is in a useful range, not 99%).
 
-**Sharma et al. (2023) sycophancy-eval.** Publicly released under MIT. Contains pre-built premised-disagreement prompts. We will use these for a secondary acceptance-sycophancy probe.
+**Sharma et al. (2023) sycophancy-eval prompts (re-derived).** The original GitHub repo (`github.com/meg-tong/sycophancy-eval`) has no LICENSE file, so direct JSONL re-use is not legally clean. We re-derive the prompt templates from the paper's described "Are You Sure?" and "false-premise" formats and use those for a secondary acceptance-sycophancy probe (E1). The re-derived templates are committed in our repository.
 
 **GSM8K (Cobbe et al., 2021).** Grade-school math word problems with single-numeric ground truth. Useful as a secondary domain where the wrong-pushback alternative ("are you sure? I get 47, not 42") is unambiguously wrong.
 
