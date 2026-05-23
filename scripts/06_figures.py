@@ -20,17 +20,23 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "analyses"))
 
-from _common import CALIBRATION_ECE, PROVIDERS, REPO_ROOT, load_final  # noqa: E402
+from _common import (  # noqa: E402
+    CALIBRATION_ECE, EXTENDED_PROVIDERS, PROVIDERS, REPO_ROOT, load_final,
+)
 
 from sycophancy.stats import bootstrap_ci  # noqa: E402
 
 FIG_DIR = REPO_ROOT / "figures"
 
 DISPLAY = {
-    "anthropic_opus":  ("Claude Opus 4.5", "#D97757"),
-    "openai_gpt5":     ("GPT-5",            "#10A37F"),
-    "llama4_maverick": ("Llama 4 Maverick", "#1877F2"),
-    "deepseek_v3":     ("DeepSeek V3.2",    "#7C3AED"),
+    "anthropic_opus":    ("Claude Opus 4.5",  "#D97757"),
+    "openai_gpt5":       ("GPT-5",             "#10A37F"),
+    "llama4_maverick":   ("Llama 4 Maverick",  "#1877F2"),
+    "deepseek_v3":       ("DeepSeek V3.2",     "#7C3AED"),
+    "openai_gpt4o":      ("GPT-4o",            "#26B574"),
+    "claude_sonnet_4_6": ("Claude Sonnet 4.6", "#E89178"),
+    "mistral_large_3":   ("Mistral Large 3",   "#FF6B35"),
+    "amazon_nova_pro":   ("Amazon Nova Pro",   "#FF9900"),
 }
 
 TEMPLATE_NAMES = {
@@ -136,12 +142,60 @@ def fig_f2(df):
     _save(fig, "F2_calibration_vs_sycophancy")
 
 
+def fig_f3_extended(df):
+    """Extended-panel descriptive flip rates (TW only) for 8 providers."""
+    sub = df[(df["template"] == "TW") & df["is_final_correct"].notna()].copy()
+    sub["flipped"] = (~sub["is_final_correct"].astype(bool)).astype(float)
+    rows = []
+    for p in EXTENDED_PROVIDERS:
+        g = sub[sub["provider"] == p]
+        if g.empty:
+            continue
+        boot = bootstrap_ci(g["flipped"].values, statistic=np.mean,
+                              B=5000, seed=20260521)
+        in_confirmatory = p in PROVIDERS
+        rows.append({
+            "provider": p,
+            "label": DISPLAY.get(p, (p, "#888"))[0],
+            "color": DISPLAY.get(p, (p, "#888"))[1],
+            "n": int(len(g)), "flip_rate": boot.point,
+            "lo": boot.lo, "hi": boot.hi,
+            "in_confirmatory": in_confirmatory,
+        })
+    rows.sort(key=lambda r: r["flip_rate"])
+    labels = [r["label"] for r in rows]
+    colors = [r["color"] for r in rows]
+    means = np.array([r["flip_rate"] for r in rows])
+    err = np.array([[r["flip_rate"] - r["lo"], r["hi"] - r["flip_rate"]]
+                    for r in rows]).T
+
+    fig, ax = plt.subplots(figsize=(9, 5), constrained_layout=True)
+    bars = ax.bar(np.arange(len(rows)), means, yerr=err,
+                  color=colors, edgecolor="black", linewidth=0.5,
+                  capsize=4, error_kw={"ecolor": "black", "linewidth": 1})
+    for b, r in zip(bars, rows, strict=True):
+        marker = "*" if r["in_confirmatory"] else ""
+        ax.annotate(f"{marker}{r['flip_rate']:.2f}\nn={r['n']}",
+                    (b.get_x() + b.get_width() / 2, r["flip_rate"]),
+                    ha="center", va="bottom", fontsize=8.5,
+                    xytext=(0, 4), textcoords="offset points")
+    ax.set_xticks(np.arange(len(rows)))
+    ax.set_xticklabels(labels, rotation=18, ha="right")
+    ax.set_ylim(0, max(1.0, max(r["hi"] for r in rows) * 1.15))
+    ax.set_ylabel("Flip rate (terse-wrong pushback)")
+    ax.set_title("Extended-panel sycophancy: terse-wrong flip rate by provider\n"
+                 "(* = pre-registered confirmatory provider; others descriptive)")
+    ax.grid(True, axis="y", alpha=0.3)
+    _save(fig, "F3_extended_panel_tw")
+
+
 def main():
     df = load_final()
     fig_f0(df)
     fig_f1(df)
     fig_f2(df)
-    print("Wrote F0, F1, F2 to figures/")
+    fig_f3_extended(df)
+    print("Wrote F0, F1, F2, F3 to figures/")
 
 
 if __name__ == "__main__":

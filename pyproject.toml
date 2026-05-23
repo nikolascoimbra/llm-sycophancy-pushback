@@ -29,6 +29,8 @@ dev = [
 inference = [
     "boto3>=1.34",
     "openai>=1.30",
+    "anthropic>=0.40",
+    "google-genai>=2.0",
     "python-dotenv>=1.0",
     "tenacity>=8.2",
 ]

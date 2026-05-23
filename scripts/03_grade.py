@@ -13,9 +13,11 @@ Writes: data/processed/sycophancy_final.parquet
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import boto3
@@ -106,62 +108,105 @@ def _cumulative_grader_spend() -> float:
     return total
 
 
-def main() -> int:
+def _grade_one(response_file: Path, bedrock) -> dict | None:
+    """Process a single response file. Returns the row dict (or None to skip)."""
+    obj = json.loads(response_file.read_text())
+    provider = obj.get("provider")
+    qid = obj.get("question_id")
+    template = obj.get("template")
+    if obj.get("error"):
+        return {**obj, "final_answer": None, "verdict": "ERROR",
+                "is_final_correct": None}
+    text = obj.get("raw_text") or ""
+    gold = obj.get("gold_answer", "")
+    question = obj.get("question", "")
+    final_ans = _parse_final_answer(text, gold)
+
+    provider_dir = GRADER_CACHE / provider
+    provider_dir.mkdir(parents=True, exist_ok=True)
+    verdict_cache = provider_dir / f"{qid}_{template}.json"
+    if verdict_cache.exists():
+        verdict = json.loads(verdict_cache.read_text())["verdict"]
+    else:
+        try:
+            verdict, cost = _grade(bedrock, question, gold, final_ans)
+        except Exception as exc:  # noqa: BLE001
+            return {**obj, "final_answer": final_ans, "verdict": "UNGRADABLE",
+                    "is_final_correct": None, "grader_error": str(exc)[:200]}
+        verdict_cache.write_text(json.dumps({
+            "verdict": verdict, "usd": cost, "final_answer": final_ans,
+        }))
+    return {
+        "provider": provider, "question_id": qid, "template": template,
+        "topic": obj.get("topic"),
+        "question": question, "gold_answer": gold,
+        "wrong_alt": obj.get("wrong_alt"),
+        "raw_text": text,
+        "final_answer": final_ans,
+        "verdict": verdict,
+        "is_final_correct": (
+            True if verdict == "CORRECT" else
+            False if verdict == "INCORRECT" else None
+        ),
+        "input_tokens": obj.get("input_tokens", 0),
+        "output_tokens": obj.get("output_tokens", 0),
+        "usd_inference": obj.get("usd", 0.0),
+    }
+
+
+def main(workers: int = 1) -> int:
     if not SYCO_CACHE.exists():
         sys.exit(f"Missing {SYCO_CACHE}. Run scripts/02_pushback_inference.py first.")
     bedrock = boto3.client("bedrock-runtime", region_name=REGION)
 
-    rows = []
-    spend_this = 0.0
+    candidates: list[Path] = []
     for response_file in sorted(SYCO_CACHE.rglob("*.json")):
         if response_file.name.endswith(".cost.json"):
             continue
-        obj = json.loads(response_file.read_text())
-        provider = obj.get("provider")
-        qid = obj.get("question_id")
-        template = obj.get("template")
-        if obj.get("error"):
-            rows.append({**obj, "final_answer": None, "verdict": "ERROR"})
+        if response_file.name.endswith("_initial.json"):
             continue
-        text = obj.get("raw_text") or ""
-        gold = obj.get("gold_answer", "")
-        question = obj.get("question", "")
-        final_ans = _parse_final_answer(text, gold)
+        if response_file.name.endswith(".grade.json"):
+            continue
+        if "secondary_grader_cache" in str(response_file):
+            continue
+        stem = response_file.stem
+        if not any(stem.endswith(f"_{t}") for t in ("TW", "PW", "AW", "PR")):
+            continue
+        candidates.append(response_file)
 
-        # Cache verdict
-        provider_dir = GRADER_CACHE / provider
-        provider_dir.mkdir(parents=True, exist_ok=True)
-        verdict_cache = provider_dir / f"{qid}_{template}.json"
-        if verdict_cache.exists():
-            cached = json.loads(verdict_cache.read_text())
-            verdict = cached["verdict"]
-        else:
+    print(f"Grading {len(candidates)} pushback responses with workers={workers} ...")
+    rows = []
+    if workers <= 1:
+        for f in candidates:
+            r = _grade_one(f, bedrock)
+            if r is not None:
+                rows.append(r)
             cum = _cumulative_grader_spend()
-            if cum + spend_this >= HARD_CAP_USD:
-                print(f"  grader ABORT at ${cum + spend_this:.4f}")
+            if cum >= HARD_CAP_USD:
+                print(f"  ABORT at ${cum:.4f}")
                 break
-            verdict, cost = _grade(bedrock, question, gold, final_ans)
-            spend_this += cost
-            verdict_cache.write_text(json.dumps({
-                "verdict": verdict, "usd": cost, "final_answer": final_ans,
-            }))
-
-        rows.append({
-            "provider": provider, "question_id": qid, "template": template,
-            "topic": obj.get("topic"),
-            "question": question, "gold_answer": gold,
-            "wrong_alt": obj.get("wrong_alt"),
-            "raw_text": text,
-            "final_answer": final_ans,
-            "verdict": verdict,
-            "is_final_correct": (
-                True if verdict == "CORRECT" else
-                False if verdict == "INCORRECT" else None
-            ),
-            "input_tokens": obj.get("input_tokens", 0),
-            "output_tokens": obj.get("output_tokens", 0),
-            "usd_inference": obj.get("usd", 0.0),
-        })
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            # Each worker gets its own client to avoid threading issues
+            clients = [boto3.client("bedrock-runtime", region_name=REGION)
+                       for _ in range(workers)]
+            futures = {
+                ex.submit(_grade_one, f, clients[i % workers]): f
+                for i, f in enumerate(candidates)
+            }
+            for i, fut in enumerate(as_completed(futures), 1):
+                r = fut.result()
+                if r is not None:
+                    rows.append(r)
+                if i % 100 == 0:
+                    print(f"  {i}/{len(candidates)} graded; "
+                          f"cum spend ${_cumulative_grader_spend():.4f}")
+                cum = _cumulative_grader_spend()
+                if cum >= HARD_CAP_USD:
+                    print(f"  ABORT at ${cum:.4f}")
+                    for fut2 in futures:
+                        fut2.cancel()
+                    break
 
     df = pd.DataFrame(rows)
     OUT_PARQUET.parent.mkdir(parents=True, exist_ok=True)
@@ -175,9 +220,13 @@ def main() -> int:
             n_other = n - n_correct - n_wrong
             print(f"  {p:<18} {t:<3}  n={n:>3}  CORRECT={n_correct:>3}  "
                   f"INCORRECT={n_wrong:>3}  other={n_other:>3}")
-    print(f"Grader spend this run: ${spend_this:.4f}")
+    print(f"Cumulative grader spend: ${_cumulative_grader_spend():.4f}")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--workers", type=int, default=8,
+                        help="Thread pool size for grading (default 8).")
+    args = parser.parse_args()
+    raise SystemExit(main(workers=args.workers))
