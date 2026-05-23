@@ -50,7 +50,10 @@ def _read_json(p: Path) -> dict | None:
 def main() -> int:
     if not TURN2_DIR.exists():
         sys.exit(f"Missing {TURN2_DIR}. Nothing to assemble.")
-    sample = pd.read_parquet(SIMPLEQA_SAMPLE).set_index("question_id")
+    sample = pd.read_parquet(SIMPLEQA_SAMPLE)
+    if "gold_answer" not in sample.columns and "answer" in sample.columns:
+        sample = sample.rename(columns={"answer": "gold_answer"})
+    sample = sample.set_index("question_id")
 
     rows = []
     for turn2_cache in sorted(TURN2_DIR.rglob("*.json")):

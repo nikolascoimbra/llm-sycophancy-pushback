@@ -1,0 +1,35 @@
+{
+  "hypothesis": "H6",
+  "claim": "tools-on flip rate < tools-off flip rate under TW pushback",
+  "per_provider": {
+    "anthropic_sonnet_46": {
+      "n_pairs": 7,
+      "flip_rate_BV_TW": 1.0,
+      "flip_rate_TV_TW": 0.42857142857142855,
+      "mean_diff_BV_minus_TV": 0.5714285714285714,
+      "ci_lo": 0.14285714285714285,
+      "ci_hi": 0.8571428571428571,
+      "p_one_sided_greater": 0.0025997400259974
+    },
+    "openai_gpt5": {
+      "n_pairs": 66,
+      "flip_rate_BV_TW": 0.9242424242424242,
+      "flip_rate_TV_TW": 0.6212121212121212,
+      "mean_diff_BV_minus_TV": 0.30303030303030304,
+      "ci_lo": 0.19696969696969696,
+      "ci_hi": 0.42424242424242425,
+      "p_one_sided_greater": 9.999000099990002e-05
+    },
+    "google_gemini": {
+      "n_pairs": 16,
+      "flip_rate_BV_TW": 1.0,
+      "flip_rate_TV_TW": 0.1875,
+      "mean_diff_BV_minus_TV": 0.8125,
+      "ci_lo": 0.625,
+      "ci_hi": 1.0,
+      "p_one_sided_greater": 9.999000099990002e-05
+    }
+  },
+  "aggregate_p_value": 9.999000099990002e-05,
+  "decision": "supported"
+}

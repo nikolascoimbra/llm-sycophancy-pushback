@@ -139,7 +139,15 @@ def _turn1_one(provider: str, cell: str, qid: str, question: str) -> dict:
 
     cache_path = TURN1_DIR / provider / cell / f"{qid}.json"
     if cache_path.exists():
-        return {"cached": True}
+        # Skip the cache only if the cached call SUCCEEDED. An entry whose
+        # raw_text is None / empty (i.e. the call errored on a previous run)
+        # will be re-attempted.
+        try:
+            obj = json.loads(cache_path.read_text())
+            if obj.get("raw_text"):
+                return {"cached": True}
+        except Exception:  # noqa: BLE001
+            pass
 
     user_prompt = _build_turn1_user_prompt(format_arm, question)
     messages = [Message(role="user", content=user_prompt)]
@@ -182,6 +190,8 @@ def _load_question_set(stage: str, only_eligible: bool) -> dict[str, pd.DataFram
     if not SIMPLEQA_SAMPLE.exists():
         sys.exit(f"Missing {SIMPLEQA_SAMPLE}. Run the calibration pipeline first.")
     sample = pd.read_parquet(SIMPLEQA_SAMPLE)
+    if "gold_answer" not in sample.columns and "answer" in sample.columns:
+        sample = sample.rename(columns={"answer": "gold_answer"})
     cols = {"question_id", "question", "gold_answer", "topic"}
     if not cols.issubset(sample.columns):
         sys.exit(f"simpleqa_sample.parquet missing required columns {cols - set(sample.columns)}")
@@ -194,9 +204,18 @@ def _load_question_set(stage: str, only_eligible: bool) -> dict[str, pd.DataFram
             )
         eligible = pd.read_parquet(ELIGIBLE_V1)
         out: dict[str, pd.DataFrame] = {}
+        # eligibility parquet may store question_id as str (cache stem origin)
+        # while simpleqa_sample stores it as int. Normalize both to str for the
+        # membership check.
+        sample_str_id = sample.assign(_qid_str=sample["question_id"].astype(str))
         for provider in V1_PROVIDERS:
-            qids = eligible.loc[eligible["provider"] == provider, "question_id"].tolist()
-            out[provider] = sample[sample["question_id"].isin(qids)].copy()
+            qids = (
+                eligible.loc[eligible["provider"] == provider, "question_id"]
+                .astype(str).tolist()
+            )
+            sub = sample_str_id[sample_str_id["_qid_str"].isin(qids)].copy()
+            sub = sub.drop(columns=["_qid_str"])
+            out[provider] = sub
         return out
     return {p: sample.copy() for p in V1_PROVIDERS}
 
@@ -212,11 +231,17 @@ def run_turn1(stage: str, *, providers: list[str] | None, cells: list[str] | Non
     for provider in target_providers:
         qs = per_provider[provider]
         # Cap at PER_PROVIDER_CAP for non-canonical stages so eligible-set sizes match
-        # turn-2 inference. For canonical (which runs over 500 SimpleQA to determine
-        # eligibility), no implicit cap — only --limit if user passes it.
+        # turn-2 inference. We sort by str(question_id) — matching the turn-2 sort —
+        # so both stages select the SAME 80 question_ids per provider. Sorting by
+        # int would give a different subset because string-sort and int-sort
+        # disagree on which qids come first (e.g. "850" sorts after "3104" as a
+        # string but before it as an int).
         if stage == "turn1_other":
-            qs = qs.sort_values("question_id").head(
-                min(limit if limit is not None else PER_PROVIDER_CAP, PER_PROVIDER_CAP)
+            qs = (
+                qs.assign(_qid_str=qs["question_id"].astype(str))
+                .sort_values("_qid_str")
+                .head(min(limit if limit is not None else PER_PROVIDER_CAP, PER_PROVIDER_CAP))
+                .drop(columns=["_qid_str"])
             )
         elif limit is not None:
             qs = qs.head(limit)
@@ -283,7 +308,12 @@ def _turn2_one(provider: str, cell: str, qid: str, question: str, gold: str,
 
     cache_path = TURN2_DIR / provider / cell / f"{qid}.json"
     if cache_path.exists():
-        return {"cached": True}
+        try:
+            obj = json.loads(cache_path.read_text())
+            if obj.get("raw_text"):
+                return {"cached": True}
+        except Exception:  # noqa: BLE001
+            pass
 
     # Load cached turn-1 (must exist).
     turn1_cache = TURN1_DIR / provider / gc_cell / f"{qid}.json"
@@ -353,8 +383,11 @@ def run_turn2(*, providers: list[str] | None, cells: list[str] | None,
     dmap = dict(zip(distractors["question_id"].astype(str),
                     distractors["wrong_answer"], strict=True))
     sample = pd.read_parquet(SIMPLEQA_SAMPLE)
+    if "gold_answer" not in sample.columns and "answer" in sample.columns:
+        sample = sample.rename(columns={"answer": "gold_answer"})
     qmap = {str(r.question_id): (r.question, r.gold_answer)
             for r in sample.itertuples(index=False)}
+    # Distractor pool may also store ids as str — already handled via dmap.
 
     target_providers = providers or V1_PROVIDERS
     target_cells = cells or CELLS_TURN2

@@ -119,7 +119,14 @@ def _grade_one(response_file: Path, out_root: Path, bedrock) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_file = out_dir / f"{qid}.json"
     if out_file.exists():
-        return {"cached": True}
+        # Invalidate stale ERROR verdicts so re-runs grade newly-collected
+        # successful responses.
+        try:
+            existing = json.loads(out_file.read_text())
+            if existing.get("verdict") not in ("ERROR", None):
+                return {"cached": True}
+        except Exception:  # noqa: BLE001
+            pass
     if not obj.get("raw_text"):
         out_file.write_text(json.dumps({
             "verdict": "ERROR", "usd": 0.0, "final_answer": None,
@@ -135,7 +142,10 @@ def _grade_one(response_file: Path, out_root: Path, bedrock) -> dict:
         sample = pd.read_parquet(
             REPO_ROOT.parent / "calibration-deployment-risk" /
             "data" / "processed" / "simpleqa_sample.parquet"
-        ).set_index("question_id")
+        )
+        if "gold_answer" not in sample.columns and "answer" in sample.columns:
+            sample = sample.rename(columns={"answer": "gold_answer"})
+        sample = sample.set_index("question_id")
         try:
             gold = sample.loc[int(qid) if qid.isdigit() else qid, "gold_answer"]
         except KeyError:

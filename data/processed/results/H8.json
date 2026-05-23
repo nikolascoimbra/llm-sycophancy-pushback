@@ -1,0 +1,36 @@
+{
+  "hypothesis": "H8",
+  "claim": "marginal effect of G > marginal effect of C (equivalent to flip(BF-TW) > flip(TV-TW))",
+  "per_provider": {
+    "anthropic_sonnet_46": {
+      "n_pairs": 6,
+      "flip_rate_BF_TW": 1.0,
+      "flip_rate_TV_TW": 0.3333333333333333,
+      "contrast_BF_minus_TV": 0.6666666666666666,
+      "ci_lo": 0.3333333333333333,
+      "ci_hi": 1.0,
+      "p_two_sided": 0.0027997200279972004
+    },
+    "openai_gpt5": {
+      "n_pairs": 45,
+      "flip_rate_BF_TW": 0.7777777777777778,
+      "flip_rate_TV_TW": 0.5777777777777777,
+      "contrast_BF_minus_TV": 0.2,
+      "ci_lo": 0.08888888888888889,
+      "ci_hi": 0.3116666666666586,
+      "p_two_sided": 0.00039996000399960006
+    },
+    "google_gemini": {
+      "n_pairs": 16,
+      "flip_rate_BF_TW": 0.6875,
+      "flip_rate_TV_TW": 0.1875,
+      "contrast_BF_minus_TV": 0.5,
+      "ci_lo": 0.125,
+      "ci_hi": 0.8125,
+      "p_two_sided": 0.011998800119988001
+    }
+  },
+  "mean_contrast_BF_minus_TV": 0.45555555555555555,
+  "aggregate_p_value_two_sided": 0.00039996000399960006,
+  "decision": "G_dominates"
+}

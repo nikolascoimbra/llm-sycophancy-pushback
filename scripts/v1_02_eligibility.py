@@ -54,7 +54,10 @@ def parse_confidence(text: str) -> float | None:
 def main() -> int:
     if not SIMPLEQA_SAMPLE.exists():
         sys.exit(f"Missing {SIMPLEQA_SAMPLE}.")
-    sample = pd.read_parquet(SIMPLEQA_SAMPLE).set_index("question_id")
+    sample = pd.read_parquet(SIMPLEQA_SAMPLE)
+    if "gold_answer" not in sample.columns and "answer" in sample.columns:
+        sample = sample.rename(columns={"answer": "gold_answer"})
+    sample = sample.set_index("question_id")
 
     if not TURN1_DIR.exists():
         sys.exit(f"Missing {TURN1_DIR}. Run v1_01_inference.py --stage turn1_canonical first.")

@@ -98,6 +98,53 @@ The contribution is novel against 2025–2026 sycophancy literature: SycEval, Sy
 
 **Cleanliness of the v1 pre-registration.** v1 differs from v0 in that **every confirmatory analysis script** for H6/H7/H8 will be committed and tagged BEFORE any v1 inference data is observed. The inference scripts (`04_turn1_directapi.py`, `05_pushback_with_tools.py`, `06_pushback_freeform.py`) are also committed at the v1 tag. The author additionally discloses (in `prereg-v1` §9.6) that the v1 design was motivated by the post-v0 replication; the pre-registration commitment is over the **statistical tests on the new conditions**, not over the existence of those conditions prior to any observation.
 
+## A7 — Reasoning/thinking budgets set to minimum for turn-1 elicitation (2026-05-23, post-tag prereg-v1)
+
+**Original (prereg-v1 §3.6 / §3.7):** Specified the turn-1 user prompt and the tool spec for the G=On arm. Did not pre-register reasoning-token / thinking-budget settings for the underlying APIs.
+
+**Amended to:** Turn-1 and turn-2 calls set the following reasoning controls per provider, applied uniformly across all 8 v1 cells:
+
+- GPT-5 (Responses API): `reasoning={"effort": "minimal"}`. Without this, GPT-5 emits 500–2700 reasoning tokens per call at $10/M, raising per-call cost ~20×.
+- Gemini 2.5 Pro: `thinking_config={"thinking_budget": 128}`. Gemini 2.5 Pro is a "thinking-only" model — `thinking_budget=0` returns HTTP 400. The minimum acceptable value of 128 keeps per-call cost predictable while still allowing a brief reasoning step for hard SimpleQA items.
+- Claude Sonnet 4.6 (Anthropic SDK): no explicit thinking parameter; extended-thinking mode is OFF by default on Sonnet 4.6 in the messages API.
+- DeepSeek V3.2: `temperature=0.0`; thinking mode left at default (non-thinking for the `deepseek-chat` alias).
+
+**Reason.** Discovered during the v1 canonical-turn-1 smoke test that the default GPT-5 and Gemini behavior is to emit substantial internal reasoning tokens before producing the verbalized-confidence answer. For a SimpleQA short-answer elicitation we want the model's direct response, not its internal reasoning trace. This makes per-call cost predictable (avg ~$0.0003) and consistent across providers. The amendment is applied before any v1 inference data is observed (the smoke test responses were correct but cost-untenable; the canonical run uses the amended settings).
+
+**Decision-rule impact.** None on H6/H7/H8 — these tests measure flip rate of the model's final answer to the user, which is the assistant's externalized response in either configuration. They do not measure the model's internal reasoning. The amendment is a cost-control / scope-of-elicitation choice and does not change what is being measured.
+
+## A8 — Anthropic rate-limit retry with exponential backoff (2026-05-23, post-tag prereg-v1)
+
+**Original (prereg-v1 §7):** Inference scripts cache one response per (provider, cell, qid). No explicit retry policy was pre-registered.
+
+**Amended to:** Anthropic direct-API calls now use `tenacity` exponential backoff (multiplier=2, min=2s, max=60s, stop=6 attempts) on `RateLimitError` and `APIStatusError`. The cache is invalidated for entries whose `raw_text` is null (errored on a prior run) so subsequent script invocations retry them.
+
+**Reason.** The author's Anthropic Console tier has a 50 RPM org-level rate limit on Sonnet 4.6. With 8 workers and ~3s per call, the script triggers 429s on 60% of Anthropic calls. The amendment lets the script auto-throttle within the limit. Cumulative spend is unaffected (429s cost $0). No other provider hit rate limits in the v1 canonical run.
+
+**Decision-rule impact.** None. The amendment improves data completeness for the Anthropic arm of H6/H7/H8; it does not change the test or the eligibility filter.
+
+## A10 — Anthropic TV / TF cell data collection terminated early due to rate-limit constraints (2026-05-23, post-tag prereg-v1)
+
+**Original (prereg-v1 §3.3):** Per-provider sample cap N=80 eligible questions per cell. If a provider's eligible count falls below 40, drop from confirmatory tests.
+
+**Amended to:** Anthropic Sonnet 4.6's TV cell data collection was terminated at $n_{\text{TV turn-1}} = 76/80$, $n_{\text{TV-TW turn-2}} = 9$ matched-pair entries (the matched-pair set is smaller than the cell because turn-1 cache alignment lagged turn-2 across the asynchronous parallel runs). Anthropic TF cell was not collected at all ($n=0$).
+
+**Reason.** The Anthropic Console tier we operate under has a 50 RPM org-level rate limit on Sonnet 4.6. Combined with the per-call latency of the `web_search_20250305` tool (~5–10s wall-clock per call, often longer due to web-fetch latency), single-process throughput stabilized at 3–8 calls per minute. With the v1 budget ($25 cap, $22 abort threshold) approaching $14 after ~70 minutes of inference and the rate-limit-driven throughput too low to plausibly finish Anthropic TV+TF cells within budget, the author terminated Anthropic data collection at $13.67 cumulative spend. The Anthropic H6 test still clears the Holm-corrected threshold at $n_{\text{pairs}}=7$ ($p\!=\!0.0026$); the H8 test on Anthropic uses $n_{\text{pairs}}=6$ ($p\!=\!0.003$). Anthropic is excluded from the TF cell analyses entirely.
+
+**Decision-rule impact.** H6 retains all three G-arm providers. H8 retains all three but with a small Anthropic sample. H7 (which does not require tools-on cells) is unaffected for Anthropic. The descriptive E5 TF-TW "consumer-chat regime" estimate omits Anthropic. The H6 / H8 conclusions are decisive on GPT-5 and Gemini alone; Anthropic adds directional support but should not be interpreted as a stand-alone confirmation. Reported transparently in §\ref{sec:limitations}.
+
+**Better fix for future runs.** Upgrade Anthropic Console tier (Sonnet rate limit at higher paid tiers is ~4000 RPM, sufficient to comfortably finish the full v1 panel in <30 minutes). Cost saving from finishing the full cell would have been minor ($~3-5 additional spend) — the binding constraint was wall-clock + rate limit, not budget.
+
+## A9 — GPT-5 reasoning effort raised to "low" when web_search is enabled (2026-05-23, post-tag prereg-v1)
+
+**Original (A7):** GPT-5 turn-1 and turn-2 calls used `reasoning={"effort": "minimal"}` uniformly across all 8 v1 cells.
+
+**Amended to:** `reasoning={"effort": "minimal"}` for cells where G=Off (BV, BF). `reasoning={"effort": "low"}` for cells where G=On (TV, TF). The Responses API rejects `effort="minimal"` combined with the `web_search` tool ("The following tools cannot be used with reasoning.effort 'minimal': web_search"), making `effort="low"` the smallest accepted value when grounding is enabled. The amendment was discovered during smoke testing before any v1 turn-2 inference began.
+
+**Reason.** OpenAI's API enforces an interaction between reasoning effort and tool availability. We must use `effort="low"` for the G=On arm to comply.
+
+**Decision-rule impact.** None on H6 (G main effect) — H6 compares per-question flip rates across G conditions, and each cell uses its own effort setting consistently. We do disclose that the G=Off and G=On cells for GPT-5 differ in two ways simultaneously (grounding AND minimum-reasoning-effort), so the GPT-5 contribution to H6 is potentially confounded by reasoning-effort. The amendment is documented and the analysis section discusses this explicitly. For Claude and Gemini the G ablation is clean.
+
 ## A5 — R2 secondary grader substituted from GPT-4o-mini to Claude Sonnet 4.6 (2026-05-21)
 
 **Original (PRE_REGISTRATION.md §3.3):** R2 cross-validation grades a stratified random sample of n=100 pushback responses with a secondary grader (GPT-4o-mini) and reports Cohen's κ vs the primary Claude Haiku 4.5 grader.

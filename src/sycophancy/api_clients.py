@@ -109,7 +109,17 @@ def call_anthropic_sonnet_46(
     import anthropic
 
     if client is None:
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        client = anthropic.Anthropic(
+            api_key=os.environ["ANTHROPIC_API_KEY"],
+            # Use the SDK's built-in retry, which respects the retry-after
+            # header. The SDK default of 2 retries is too low for sustained
+            # rate-limit pressure; 8 attempts with the SDK's smart wait keeps
+            # us well under the 50-RPM org limit without long blind backoff.
+            max_retries=8,
+        )
+
+    def _do_call(**kw):
+        return client.messages.create(**kw)
 
     kwargs: dict[str, Any] = {
         "model": MODEL_IDS["anthropic_sonnet_46"],
@@ -130,7 +140,7 @@ def call_anthropic_sonnet_46(
             "cache_control": {"type": "ephemeral"},
         }]
 
-    resp = client.messages.create(**kwargs)
+    resp = _do_call(**kwargs)
 
     # Extract free-text content. With server-side web_search the response may
     # include tool_use + tool_result blocks; we only want assistant text.
@@ -176,7 +186,7 @@ def call_openai_gpt5(
     messages: list[Message],
     *,
     grounding: bool,
-    max_tokens: int = 5000,
+    max_tokens: int = 1500,
     client: Any = None,
 ) -> ProviderResponse:
     from openai import OpenAI
@@ -190,10 +200,16 @@ def call_openai_gpt5(
         {"role": m.role, "content": m.content} for m in messages
     ]
 
+    # GPT-5 default reasoning emits hundreds of thinking tokens which inflate
+    # cost ~20×. We use effort="minimal" for tools-off calls. The Responses API
+    # rejects effort="minimal" combined with the web_search tool, so for
+    # grounding=True we step up to effort="low" (smallest allowed).
+    effort = "low" if grounding else "minimal"
     kwargs: dict[str, Any] = {
         "model": MODEL_IDS["openai_gpt5"],
         "input": input_messages,
         "max_output_tokens": max_tokens,
+        "reasoning": {"effort": effort},
     }
     if grounding:
         kwargs["tools"] = [{"type": "web_search"}]
@@ -243,7 +259,11 @@ def call_google_gemini(
     client: Any = None,
 ) -> ProviderResponse:
     from google import genai
+    from google.genai import errors as genai_errors
     from google.genai import types as gtypes
+    from tenacity import (
+        retry, retry_if_exception_type, stop_after_attempt, wait_exponential,
+    )
 
     if client is None:
         client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
@@ -260,6 +280,12 @@ def call_google_gemini(
 
     config_kwargs: dict[str, Any] = {
         "max_output_tokens": max_tokens,
+        # Gemini 2.5 Pro requires thinking_budget ≥ 128 (Pro is a thinking-only
+        # model; budget=0 returns 400). Setting the minimum keeps cost
+        # predictable while still allowing a small reasoning step on hard
+        # SimpleQA items. Empirically 128 yields ~70 thought tokens + ~10-30
+        # response tokens for a verbalized-confidence answer.
+        "thinking_config": gtypes.ThinkingConfig(thinking_budget=128),
     }
     if system_instruction:
         config_kwargs["system_instruction"] = system_instruction
@@ -268,11 +294,20 @@ def call_google_gemini(
             gtypes.Tool(google_search=gtypes.GoogleSearch()),
         ]
 
-    resp = client.models.generate_content(
-        model=MODEL_IDS["google_gemini"],
-        contents=contents,
-        config=gtypes.GenerateContentConfig(**config_kwargs),
+    @retry(
+        retry=retry_if_exception_type(genai_errors.ClientError),
+        wait=wait_exponential(multiplier=2, min=4, max=60),
+        stop=stop_after_attempt(6),
+        reraise=True,
     )
+    def _do_call():
+        return client.models.generate_content(
+            model=MODEL_IDS["google_gemini"],
+            contents=contents,
+            config=gtypes.GenerateContentConfig(**config_kwargs),
+        )
+
+    resp = _do_call()
 
     text = (resp.text or "").strip()
 
