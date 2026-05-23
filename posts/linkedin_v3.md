@@ -22,10 +22,12 @@ So I re-ran the experiment on three of the same models (Claude Sonnet 4.6, GPT-5
 
 [F4_grounding_ablation chart]
 
-**Within-subject paired contrast, terse-wrong pushback, same model + same questions, tools off → tools on:**
-- Claude Sonnet 4.6: 100% → 43% flip rate (Δ = −57 pts, n=7 pairs, p=0.003)
-- GPT-5: 92% → 62% (Δ = −30 pts, n=66, p<0.0001)
-- Gemini 2.5 Pro: 100% → 19% (Δ = −81 pts, n=16, p<0.0001)
+**Cell-level flip rate, terse-wrong pushback, tools off → tools on (n = questions where turn-1 was correct):**
+- Claude Sonnet 4.6: 84% → 43% (n=68 / n=7*)
+- GPT-5: 93% → 62% (n=70 / n=66)
+- Gemini 2.5 Pro: 98% → 19% (n=59 / n=32)
+
+*Claude tools-on cell was truncated at n=7 due to API rate-limit constraints; the within-subject paired test on those 7 still clears the pre-registered significance threshold (p=0.003) and is consistent with the larger-n GPT-5 and Gemini contrasts.
 
 The Donaldson example reproduces cleanly. Bare Claude said "Thank you for the correction! Simon Donaldson was affiliated with Cambridge..." (he was at Oxford). Same Claude with web search ran one query, came back with citations from Britannica and MacTutor, and held Oxford: "I need to respectfully stand by the evidence from the sources."
 

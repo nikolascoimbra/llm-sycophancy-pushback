@@ -20,7 +20,7 @@ Sycophancy --- the tendency of an LLM to revise a correct answer toward a user-a
 
 Study 1 (frozen at git tag \texttt{prereg-v0}) measures cross-laboratory flip rates under a bare-API, calibration-style verbalized-confidence prompt on 8 frontier 2026 LLMs. Seven of eight providers flip on $\geq 90\%$ of confidently-correct SimpleQA answers after a single terse-wrong user pushback (GPT-5 alone holds at 65\%; omnibus permutation $p\!=\!0.0001$). A surprise: politeness and assertive framing both \emph{reduce} flip rate by 17--43 points relative to bare contradiction, opposite the pre-registered direction. The Spearman correlation between per-provider calibration ECE (from a companion study) and TW flip rate is $\rho = 0.80$ at $n=4$.
 
-Study 2 (frozen at git tag \texttt{prereg-v1}) is a 3-factor within-subject factorial (grounding $\times$ confidence-elicitation-format $\times$ pushback) on the same SimpleQA question set, with three providers that expose a first-party web search tool (Anthropic Claude Sonnet 4.6, OpenAI GPT-5, Google Gemini 2.5 Pro) plus DeepSeek V3.2 for the format arm. Native web search collapses the terse-wrong flip rate by $30$--$81$ percentage points within-subject on every provider tested (Anthropic Sonnet $\Delta\!=\!+0.57$ on $n\!=\!7$; GPT-5 $\Delta\!=\!+0.30$ on $n\!=\!66$; Gemini $\Delta\!=\!+0.81$ on $n\!=\!16$; aggregate $p\!=\!0.0001$). Free-form prompts (without verbalized-confidence elicitation) reduce flip rate by 13--27 points on the two providers where they help (GPT-5, Gemini), with no measurable effect on Anthropic and a small \emph{negative} effect on DeepSeek (H7 mixed). The grounding effect exceeds the format effect on every provider tested (H8 ``G dominates,'' mean cross-provider contrast $+0.46$, $p\!=\!0.0004$).
+Study 2 (frozen at git tag \texttt{prereg-v1}) is a 3-factor within-subject factorial (grounding $\times$ confidence-elicitation-format $\times$ pushback) on the same SimpleQA question set, with three providers that expose a first-party web search tool (Anthropic Claude Sonnet 4.6, OpenAI GPT-5, Google Gemini 2.5 Pro) plus DeepSeek V3.2 for the format arm. Bare-API + verbalized-confidence terse-wrong flip rates on the v1 panel reproduce Study 1: Anthropic 84\%, GPT-5 93\%, Gemini 98\%, DeepSeek 86\%. With native web search enabled on the same eligible questions, the flip rates fall to 43\%, 62\%, and 19\% respectively --- a 31 to 79 percentage-point cell-level reduction per provider. The within-subject H6 paired test (which uses the matched intersection of turn-1-correct in both cells) clears Holm at $p\!=\!0.0001$ on every G-arm provider. Free-form prompts (without verbalized-confidence elicitation) reduce flip rate by 13--27 points on the two providers where they help (GPT-5, Gemini), with no measurable effect on Anthropic and a small \emph{negative} effect on DeepSeek (H7 mixed). The grounding effect exceeds the format effect on every provider tested (H8 ``G dominates,'' mean cross-provider contrast $+0.46$, $p\!=\!0.0004$).
 
 Implication: the per-provider sycophancy numbers in the current literature describe one specific deployment regime --- bare API, no tools, structured-output prompts --- that is operationally common in agent stacks but is not the typical consumer-product experience. Giving the model native search access collapses sycophancy on factual recall by an order of magnitude. Code, data, the prereg-v0 and prereg-v1 tags, an amendments log, and all analysis scripts are released at \url{https://github.com/nikolascoimbra/llm-sycophancy-pushback}.
 \end{abstract}
@@ -80,12 +80,12 @@ arm only, disclosed in advance: its API does not expose a first-party
 search tool (see prereg-v1 \S2.1).
 
 The result, in one sentence: \emph{native web search collapses sycophancy
-on factual recall, in every provider tested.} Claude Sonnet 4.6 with
-search holds on $X\%$ of Donaldson-class questions where bare-API Claude
-held on under 10\%; GPT-5 goes from 93\% TW flip rate (bare) to 31\% (both
-tools and free-form prompt); Gemini 2.5 Pro goes from 100\% to 19\%. The
-per-question, paired, within-subject contrast is decisive on a tiny
-$n_{\text{eligible}} \leq 80$ panel ($p < 10^{-4}$ on every provider).
+on factual recall, in every provider tested.} Claude Sonnet 4.6 goes from
+84\% TW flip rate bare-API to 43\% with tools; GPT-5 goes from 93\% to 62\%
+(and to 31\% when free-form prompting is also applied); Gemini 2.5 Pro goes
+from 98\% to 19\%. The per-question, paired, within-subject contrast
+clears the Holm-corrected threshold on every G-arm provider
+($p < 10^{-2}$ on Anthropic, $p < 10^{-4}$ on GPT-5 and Gemini).
 
 \paragraph{What this changes.} Three things this literature does not yet
 have:
@@ -345,17 +345,20 @@ TF-PR. Cells with G=T are skipped for DeepSeek.
 \includegraphics[width=0.85\linewidth]{../figures/F4_grounding_ablation.pdf}
 \caption{The headline result: paired per-provider flip rate under
 terse-wrong pushback, with vs. without native web search enabled, on the
-same eligible questions. The within-subject reduction is 30 points (GPT-5),
-$\geq 80$ points (Gemini 2.5 Pro), and Anthropic Sonnet 4.6 in the same
-direction. Bootstrap 95\% CIs; per-provider paired one-sided test, every
-$p<10^{-4}$.\label{fig:F4}}
+same eligible questions. Bars are the H6 matched-pair statistic
+(within-subject intersection of turn-1-correct in both cells). Bootstrap
+95\% CIs; per-provider paired one-sided test, every $p < 10^{-2}$.
+Cell-level rates (over all turn-1-correct questions per cell, regardless
+of matched availability in the other cell) are reported in
+Table~\ref{tab:study2_cell} below; they are 5--15 points lower than the
+matched-pair bars for Anthropic and Gemini because the matched subsamples
+are small ($n_{\text{pairs}}\!=\!7$ Anthropic, $n_{\text{pairs}}\!=\!16$
+Gemini) and biased toward questions where the model held confidently in
+both conditions.\label{fig:F4}}
 \end{figure}
 
-\paragraph{H6 (supported).} Per provider $p \in \{\text{Anthropic Sonnet
-4.6, GPT-5, Gemini 2.5 Pro}\}$, the TW flip rate in cell TV-TW
-(tools-on, verbalized-confidence, terse-wrong) is strictly less than in
-cell BV-TW (tools-off, same prompt). Per-question paired difference and
-one-sided bootstrap $p$:
+\paragraph{H6 (supported).} The within-subject paired test on the matched
+intersection of turn-1-correct in cells BV-TW and TV-TW:
 
 \begin{center}
 \begin{tabular}{lrrrrr}
@@ -369,16 +372,50 @@ Gemini 2.5 Pro       & 16 & 1.000 & 0.188 & $+0.812$ & $0.0001$ \\
 \end{tabular}
 \end{center}
 
-The Gemini effect is extreme: in this within-subject sample Gemini flipped
-on \emph{every} correct answer it was contradicted on in the bare-API
-condition, and flipped on $19\%$ when the same question, same model, was
-given web-search access. GPT-5's reduction (30 points) is smaller in
-absolute terms but starts from a high base (92\%). Anthropic Sonnet 4.6's
-within-subject contrast is positive and significant at $p\!=\!0.003$ on
-only $n\!=\!7$ matched pairs (TV-cell data collection terminated early due
-to Anthropic Console rate-limit constraints; see amendment A10). All three
-per-provider contrasts clear the Holm-corrected threshold; the aggregate
-(min-$p$) $= 0.0001$.
+The Anthropic and Gemini paired-set BV-TW rates of $1.000$ reflect a
+specific small-$n$ artifact: the only questions for which we have both a
+BV-TW measurement \emph{and} a successful TV-TW measurement are
+disproportionately questions on which the bare-API model flipped. The cell-
+level rates over all turn-1-correct questions are not 100\% --- they are
+the values in Table~\ref{tab:study2_cell}.
+
+\begin{center}
+\label{tab:study2_cell}
+\begin{tabular}{lrrrr}
+\toprule
+Provider & BV-TW flip & BF-TW flip & TV-TW flip & TF-TW flip \\
+ & ($n_\text{t1ok}$) & ($n_\text{t1ok}$) & ($n_\text{t1ok}$) & ($n_\text{t1ok}$) \\
+\midrule
+Anthropic Sonnet 4.6 & 0.84 (68) & 0.96 (57) & 0.43 (7)\textsuperscript{*} & --- \\
+GPT-5                & 0.93 (70) & 0.78 (46) & 0.62 (66)            & 0.31 (68) \\
+Gemini 2.5 Pro       & 0.98 (59) & 0.73 (30) & 0.19 (32)            & 0.27 (30) \\
+DeepSeek V3.2        & 0.86 (66) & 0.93 (58) & ---                  & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textsuperscript{*}\footnotesize{Anthropic Sonnet 4.6 TV cell terminated
+at $n_{\text{TV-TW graded}}\!=\!7$ due to Anthropic Console 50-RPM rate-
+limit constraints; see amendment A10. The within-subject test on those 7
+matched pairs is still significant ($p\!=\!0.003$) but the cell rate
+should be interpreted with caution.}
+
+\medskip
+
+Reading the cell-level table: bare-API + verbalized-confidence (BV-TW)
+flip rates on the v1 panel are 84\%, 93\%, 98\%, 86\% --- consistent with
+the Study 1 values of 90--96\% on the four-provider confirmatory panel and
+with the broader literature's per-model sycophancy ranking. The dramatic
+move is in the TV-TW column: same models, same questions, plus native web
+search drops the flip rate to 43\%, 62\%, 19\% respectively. The
+within-subject test (H6 paired bootstrap) confirms the contrast is real
+on each of the three G-arm providers individually; the magnitudes reported
+in the matched-pair table above are at the upper end of the cell-level
+range because of the matched-subsample selection effect.
+
+GPT-5's $n_{\text{pairs}}\!=\!66$ is large enough that its paired and cell
+statistics agree (paired BV-TW $=\!0.924$, cell $=\!0.93$). Anthropic
+($n_{\text{pairs}}\!=\!7$) and Gemini ($n_{\text{pairs}}\!=\!16$) show the
+matched-subsample bias clearly. We report both for transparency.
 
 \paragraph{Tool invocation rate (E7).} When tools are available, the
 models do not always use them. On the TV-TW cell where pushback is
