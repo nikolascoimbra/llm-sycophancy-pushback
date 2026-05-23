@@ -19,6 +19,10 @@ data/processed/
 figures/*.png
 figures/*.pdf
 
+# Paper manuscript (built locally; tex source + bib + PDF live outside the
+# reproducibility artifact — paper is the OUTPUT, not part of the protocol)
+paper/
+
 # OS / editor
 .DS_Store
 .idea/
