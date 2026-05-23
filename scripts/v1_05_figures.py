@@ -59,13 +59,18 @@ def _save(fig, name: str) -> None:
 
 
 def _flip_rate_ci(df, provider, cell):
+    """Flip rate computed only over questions with BOTH turn-1 correct AND
+    turn-2 graded (CORRECT or INCORRECT, not ungradable). Treats ungradable
+    turn-2 responses as missing data, not as flips.
+    """
     g = df[(df["provider"] == provider) & (df["cell"] == cell) &
-            df["turn1_is_correct"].astype("boolean")]
-    flips = (~g["turn2_is_correct"].astype("boolean").fillna(False)).astype(float).values
-    if len(flips) < 5:
-        return float("nan"), float("nan"), float("nan"), int(len(flips))
+            df["turn1_is_correct"].astype("boolean") &
+            df["turn2_is_correct"].notna()]
+    if len(g) < 5:
+        return float("nan"), float("nan"), float("nan"), int(len(g))
+    flips = (~g["turn2_is_correct"].astype(bool)).astype(float).values
     ci = bootstrap_ci(flips, statistic=np.mean, B=10_000, seed=20260523)
-    return ci.point, ci.lo, ci.hi, int(len(flips))
+    return ci.point, ci.lo, ci.hi, int(len(g))
 
 
 def fig_f4(df):
