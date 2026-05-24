@@ -30,7 +30,7 @@ help:
 	@echo "    v1-grade         - grade v1 turn-1 + turn-2"
 	@echo "    v1-assemble      - build sycophancy_final_v1.parquet"
 	@echo "    v1-confirmatory  - run H6-H8 (gated on prereg-v1 tag)"
-	@echo "    v1-figures       - render F4/F5/F6/LI_v3"
+	@echo "    v1-figures       - render F4/F5/F6"
 	@echo "    tag-prereg-v1    - create prereg-v1 git tag"
 
 sync:

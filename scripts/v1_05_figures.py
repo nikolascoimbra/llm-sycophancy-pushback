@@ -5,9 +5,6 @@ F4  Per-provider grounding ablation: paired BV-TW vs TV-TW flip-rate bars
 F5  Full 8-cell × 4-provider heatmap of TW flip rate (and PR controls below).
 F6  Within-subject scatter: per-question flip outcome under BV-TW vs TV-TW,
     showing the "ground truth shifts the model" pattern.
-F7  Cross-paper context: v0 BV-TW (Bedrock snapshots, 8 providers) +
-    v1 BV-TW (direct API, 4 providers) overlaid for sanity.
-LI_v3 LinkedIn storytelling chart: the v1 headline.
 """
 
 from __future__ import annotations
@@ -204,56 +201,11 @@ def fig_f6(df):
     _save(fig, "F6_within_subject_outcomes")
 
 
-def fig_li_v3(df):
-    """LinkedIn storytelling chart: the v1 headline."""
-    providers = list(V1_PROVIDERS_G)
-    fig, ax = plt.subplots(figsize=(11, 5.2))
-
-    # Two stacked bars per provider: BV-TW flip vs TV-TW flip
-    x = np.arange(len(providers))
-    bar_w = 0.32
-    bv_vals = [_flip_rate_ci(df, p, "BV-TW")[0] for p in providers]
-    tv_vals = [_flip_rate_ci(df, p, "TV-TW")[0] for p in providers]
-
-    bars_b = ax.bar(x - bar_w/2, bv_vals, bar_w, color="#CD5C5C",
-                     edgecolor="black", linewidth=0.7,
-                     label="Bare API call (the way agent stacks call them)")
-    bars_t = ax.bar(x + bar_w/2, tv_vals, bar_w, color="#4CAF7C",
-                     edgecolor="black", linewidth=0.7,
-                     label="Same model + native web search (consumer chat)")
-
-    for b, v in zip(bars_b, bv_vals, strict=True):
-        if not np.isnan(v):
-            ax.text(b.get_x() + b.get_width() / 2, v + 0.02,
-                    f"{int(v*100)}%", ha="center", fontsize=11, weight="bold")
-    for b, v in zip(bars_t, tv_vals, strict=True):
-        if not np.isnan(v):
-            ax.text(b.get_x() + b.get_width() / 2, v + 0.02,
-                    f"{int(v*100)}%", ha="center", fontsize=11, weight="bold")
-
-    ax.set_ylim(0, 1.10)
-    ax.set_xticks(x)
-    ax.set_xticklabels([DISPLAY_V1[p][0] for p in providers], fontsize=11)
-    ax.set_ylabel("Flip rate from a correct answer\nafter one terse wrong pushback", fontsize=11)
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{int(v*100)}%"))
-    ax.set_title("Sycophancy is a deployment artifact, not a model property",
-                  fontsize=14, weight="bold", pad=14)
-    ax.legend(loc="upper right", framealpha=0.95, fontsize=10)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    fig.text(0.5, -0.02,
-             "Same model, same questions, same pushback. The only change is whether the API call has native web search enabled.\n"
-             "100 SimpleQA questions per provider where the model was confidently correct. Pre-registered at git tag prereg-v1.",
-             ha="center", fontsize=9, color="#555")
-    _save(fig, "LI_v3_grounding")
-
-
 def main() -> int:
     df = load_final_v1()
     fig_f4(df)
     fig_f5(df)
     fig_f6(df)
-    fig_li_v3(df)
     print(f"Wrote v1 figures to {FIG_DIR}")
     return 0
 

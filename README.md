@@ -36,7 +36,7 @@ Within-subject H6 paired test: every per-provider contrast clears Holm at p < 10
 | 6 | Pre-registration `prereg-v1` (Study 2) | tagged 2026-05-23 |
 | 7 | Study 2 inference + grading | done (4 providers × 8 cells, 1,425 graded rows; Anthropic TV/TF partial — see A10) |
 | 8 | Study 2 H6–H8 confirmatory analyses | done; results in `data/processed/results/H[6-8].json` |
-| 9 | Figures (F0–F6, LI_v3) | done; in `figures/` (git-ignored) |
+| 9 | Figures (F0–F6) | done; in `figures/` (git-ignored) |
 | 10 | Paper draft | done; built locally to `paper/main.pdf` (git-ignored) |
 
 ## Pre-registration tags

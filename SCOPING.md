@@ -170,7 +170,6 @@ Same structure as the calibration paper:
 - `data/raw/sycophancy_cache/` — every cached two-turn conversation, addressable by `<provider>/<qid>_<template>.json`.
 - `data/processed/results/{H1..H5,E1..E3,R1..R3}.json` — committed audit trail.
 - `figures/F0` — headline per-provider flip-rate bar chart.
-- `posts/alignment_forum.md`, `posts/linkedin.md`.
 
 ## 8. Timeline
 
