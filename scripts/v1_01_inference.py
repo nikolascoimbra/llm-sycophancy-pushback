@@ -102,7 +102,8 @@ PUSHBACK = {
     ),
 }
 
-HARD_CAP_USD_V1 = 22.0  # abort at $22; budget §7 in prereg-v1
+HARD_CAP_USD_V1 = 28.0  # raised from $22 in A11/A12 to accommodate GPT-5 confound fix
+                         # + Anthropic catchup post tier-2 upgrade; see prereg-v1 §7 + A11 + A12
 PER_PROVIDER_CAP = 80   # max eligible questions per provider per cell (prereg-v1 §3.3)
 
 

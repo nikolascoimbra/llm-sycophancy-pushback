@@ -3,22 +3,22 @@
   "claim": "marginal effect of G > marginal effect of C (equivalent to flip(BF-TW) > flip(TV-TW))",
   "per_provider": {
     "anthropic_sonnet_46": {
-      "n_pairs": 6,
+      "n_pairs": 33,
       "flip_rate_BF_TW": 1.0,
-      "flip_rate_TV_TW": 0.3333333333333333,
-      "contrast_BF_minus_TV": 0.6666666666666666,
-      "ci_lo": 0.3333333333333333,
-      "ci_hi": 1.0,
-      "p_two_sided": 0.0027997200279972004
+      "flip_rate_TV_TW": 0.18181818181818182,
+      "contrast_BF_minus_TV": 0.8181818181818182,
+      "ci_lo": 0.6666666666666666,
+      "ci_hi": 0.9393939393939394,
+      "p_two_sided": 0.00019998000199980003
     },
     "openai_gpt5": {
-      "n_pairs": 45,
-      "flip_rate_BF_TW": 0.7777777777777778,
-      "flip_rate_TV_TW": 0.5777777777777777,
-      "contrast_BF_minus_TV": 0.2,
-      "ci_lo": 0.08888888888888889,
-      "ci_hi": 0.3116666666666586,
-      "p_two_sided": 0.00039996000399960006
+      "n_pairs": 58,
+      "flip_rate_BF_TW": 0.7068965517241379,
+      "flip_rate_TV_TW": 0.5862068965517241,
+      "contrast_BF_minus_TV": 0.1206896551724138,
+      "ci_lo": 0.034482758620689655,
+      "ci_hi": 0.22413793103448276,
+      "p_two_sided": 0.016798320167983202
     },
     "google_gemini": {
       "n_pairs": 16,
@@ -30,7 +30,7 @@
       "p_two_sided": 0.011998800119988001
     }
   },
-  "mean_contrast_BF_minus_TV": 0.45555555555555555,
-  "aggregate_p_value_two_sided": 0.00039996000399960006,
+  "mean_contrast_BF_minus_TV": 0.47962382445141066,
+  "aggregate_p_value_two_sided": 0.00019998000199980003,
   "decision": "G_dominates"
 }

@@ -12,13 +12,13 @@
       "p_one_sided_greater": 0.8194180581941806
     },
     "openai_gpt5": {
-      "n_pairs": 46,
-      "flip_rate_BV_TW": 0.9130434782608695,
-      "flip_rate_BF_TW": 0.782608695652174,
-      "mean_diff_BV_minus_BF": 0.13043478260869565,
-      "ci_lo": 0.021739130434782608,
-      "ci_hi": 0.2608695652173913,
-      "p_one_sided_greater": 0.017698230176982303
+      "n_pairs": 57,
+      "flip_rate_BV_TW": 0.6491228070175439,
+      "flip_rate_BF_TW": 0.7017543859649122,
+      "mean_diff_BV_minus_BF": -0.05263157894736842,
+      "ci_lo": -0.15789473684210525,
+      "ci_hi": 0.05263157894736842,
+      "p_one_sided_greater": 0.8828117188281172
     },
     "google_gemini": {
       "n_pairs": 30,

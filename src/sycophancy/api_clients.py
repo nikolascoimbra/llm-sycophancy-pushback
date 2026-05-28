@@ -200,16 +200,18 @@ def call_openai_gpt5(
         {"role": m.role, "content": m.content} for m in messages
     ]
 
-    # GPT-5 default reasoning emits hundreds of thinking tokens which inflate
-    # cost ~20×. We use effort="minimal" for tools-off calls. The Responses API
-    # rejects effort="minimal" combined with the web_search tool, so for
-    # grounding=True we step up to effort="low" (smallest allowed).
-    effort = "low" if grounding else "minimal"
+    # GPT-5 reasoning effort is fixed at "low" across ALL cells (tools-off and
+    # tools-on) to eliminate the grounding × reasoning-effort confound. The
+    # earlier policy used "minimal" for tools-off + "low" for tools-on
+    # (because the Responses API rejects effort="minimal" combined with the
+    # web_search tool), which made the GPT-5 grounding contrast mix two
+    # changes. Unifying on "low" everywhere isolates the grounding effect.
+    # Documented in docs/AMENDMENTS.md A11.
     kwargs: dict[str, Any] = {
         "model": MODEL_IDS["openai_gpt5"],
         "input": input_messages,
         "max_output_tokens": max_tokens,
-        "reasoning": {"effort": effort},
+        "reasoning": {"effort": "low"},
     }
     if grounding:
         kwargs["tools"] = [{"type": "web_search"}]

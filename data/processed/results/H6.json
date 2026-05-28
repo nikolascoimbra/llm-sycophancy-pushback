@@ -3,22 +3,22 @@
   "claim": "tools-on flip rate < tools-off flip rate under TW pushback",
   "per_provider": {
     "anthropic_sonnet_46": {
-      "n_pairs": 7,
-      "flip_rate_BV_TW": 1.0,
-      "flip_rate_TV_TW": 0.42857142857142855,
-      "mean_diff_BV_minus_TV": 0.5714285714285714,
-      "ci_lo": 0.14285714285714285,
-      "ci_hi": 0.8571428571428571,
-      "p_one_sided_greater": 0.0025997400259974
+      "n_pairs": 39,
+      "flip_rate_BV_TW": 0.9487179487179487,
+      "flip_rate_TV_TW": 0.28205128205128205,
+      "mean_diff_BV_minus_TV": 0.6666666666666666,
+      "ci_lo": 0.48717948717948717,
+      "ci_hi": 0.8205128205128205,
+      "p_one_sided_greater": 9.999000099990002e-05
     },
     "openai_gpt5": {
-      "n_pairs": 66,
-      "flip_rate_BV_TW": 0.9242424242424242,
-      "flip_rate_TV_TW": 0.6212121212121212,
-      "mean_diff_BV_minus_TV": 0.30303030303030304,
-      "ci_lo": 0.19696969696969696,
-      "ci_hi": 0.42424242424242425,
-      "p_one_sided_greater": 9.999000099990002e-05
+      "n_pairs": 58,
+      "flip_rate_BV_TW": 0.6724137931034483,
+      "flip_rate_TV_TW": 0.603448275862069,
+      "mean_diff_BV_minus_TV": 0.06896551724137931,
+      "ci_lo": -0.017241379310344827,
+      "ci_hi": 0.1724137931034483,
+      "p_one_sided_greater": 0.10378962103789621
     },
     "google_gemini": {
       "n_pairs": 16,

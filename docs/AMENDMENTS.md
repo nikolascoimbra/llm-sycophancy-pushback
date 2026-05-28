@@ -145,6 +145,34 @@ The contribution is novel against 2025–2026 sycophancy literature: SycEval, Sy
 
 **Decision-rule impact.** None on H6 (G main effect) — H6 compares per-question flip rates across G conditions, and each cell uses its own effort setting consistently. We do disclose that the G=Off and G=On cells for GPT-5 differ in two ways simultaneously (grounding AND minimum-reasoning-effort), so the GPT-5 contribution to H6 is potentially confounded by reasoning-effort. The amendment is documented and the analysis section discusses this explicitly. For Claude and Gemini the G ablation is clean.
 
+## A11 — GPT-5 reasoning effort unified to "low" across all cells (2026-05-27, post-tag prereg-v1)
+
+**Supersedes:** A9.
+
+**Original (A9):** GPT-5 used `reasoning={"effort": "minimal"}` for G=Off cells (BV, BF) and `reasoning={"effort": "low"}` for G=On cells (TV, TF). The mixed setting was disclosed as a confound on the GPT-5 H6 contrast.
+
+**Amended to:** `reasoning={"effort": "low"}` for ALL GPT-5 cells (turn-1 and turn-2, every G × C × P combination). The earlier `effort="minimal"` policy is retired. All GPT-5 turn-1 BV / BF + turn-2 BV-TW / BV-PR / BF-TW / BF-PR cells were re-elicited under `effort="low"` on 2026-05-27. The pre-existing TV/TF cells (which already used `effort="low"`) were unchanged. Grader verdicts were invalidated for the re-elicited cells and re-graded.
+
+**Reason.** A9 disclosed but did not fix the grounding × reasoning-effort confound on the GPT-5 H6 contrast. With Anthropic Console tier-2 now available (eliminating the rate-limit pressure that was the original budget concern), we can afford to unify on `effort="low"` everywhere; this isolates the grounding effect cleanly. Cached responses under `effort="minimal"` are preserved at `.private/gpt5_minimal_backup/` for reference; the v1 eligibility set is reused unchanged (frozen at prereg-v1 tag).
+
+**Decision-rule impact.** Improves the validity of H6 for GPT-5. The Claude and Gemini contrasts are unaffected. Cross-provider aggregate min-p re-computed after re-run. The §Limitations bullet about GPT-5 reasoning-effort confound is now retired.
+
+**Cost.** ~$1.50 OpenAI inference (500 BV + ~70 BF turn-1 calls + 4 × 70 turn-2 calls at effort="low") + ~$0.20 re-grading.
+
+## A12 — Anthropic TV / TF cells refilled after Console tier-2 upgrade (2026-05-27, post-tag prereg-v1)
+
+**Supersedes:** A10 (terminated-early condition lifted).
+
+**Original (A10):** Anthropic Sonnet 4.6 TV cell terminated at n_TV-TW turn-2 = 9 due to 50-RPM tier-1 rate limit; TF cell at n=0. H6 retained Anthropic at n_pairs=7 with a "small-n / fragile" footnote.
+
+**Amended to:** With Anthropic Console upgraded to tier 2 (Sonnet 4.6 RPM raised from 50 to ~1000), the TV turn-1 cell was completed to N=80 and the TF turn-1 cell was elicited to N=80 from scratch. Turn-2 TV-TW, TV-PR, TF-TW, TF-PR were then run to completion. Distractor-pool coverage (~68 of 80) determines the per-cell n. H6 paired contrast for Anthropic now uses the full intersection of turn-1-correct in both BV-TW and TV-TW cells.
+
+**Reason.** A10 was a budget-and-time concession to a rate-limit constraint that has since been resolved. The data collection is now consistent with the prereg-v1 N=80 specification across all 4 v1 providers (modulo the descriptive distractor-coverage R4 caveat). The §Limitations bullet "Anthropic n=7" is retired.
+
+**Decision-rule impact.** Strengthens H6 and H8 on Anthropic (larger n_pairs); H7 unchanged. Cross-provider aggregate min-p re-computed after re-run.
+
+**Cost.** ~$8 Anthropic inference (most of the spend in `web_search` per-search billing + cached page tokens).
+
 ## A5 — R2 secondary grader substituted from GPT-4o-mini to Claude Sonnet 4.6 (2026-05-21)
 
 **Original (PRE_REGISTRATION.md §3.3):** R2 cross-validation grades a stratified random sample of n=100 pushback responses with a secondary grader (GPT-4o-mini) and reports Cohen's κ vs the primary Claude Haiku 4.5 grader.
