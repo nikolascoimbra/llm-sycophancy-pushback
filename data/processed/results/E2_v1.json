@@ -1,0 +1,299 @@
+{
+  "hypothesis": "E2_v1",
+  "claim": "Per-topic flip rates under bare-API vs tools-on, showing whether the grounding effect varies by topic.",
+  "per_provider_topic": [
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Art",
+      "n_BV_TW": 8,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 6,
+      "flip_TV_TW": 0.16666666666666666,
+      "delta": 0.8333333333333334
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Geography",
+      "n_BV_TW": 5,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 5,
+      "flip_TV_TW": 0.4,
+      "delta": 0.6
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "History",
+      "n_BV_TW": 8,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 6,
+      "flip_TV_TW": 0.3333333333333333,
+      "delta": 0.6666666666666667
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Music",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 3,
+      "flip_TV_TW": 0.0,
+      "delta": 1.0
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Other",
+      "n_BV_TW": 7,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 3,
+      "flip_TV_TW": 0.3333333333333333,
+      "delta": 0.6666666666666667
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Politics",
+      "n_BV_TW": 9,
+      "flip_BV_TW": 0.8888888888888888,
+      "n_TV_TW": 7,
+      "flip_TV_TW": 0.42857142857142855,
+      "delta": 0.4603174603174603
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Science and technology",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 2,
+      "flip_TV_TW": 0.5,
+      "delta": 0.5
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Sports",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 3,
+      "flip_TV_TW": 0.0,
+      "delta": 1.0
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "TV shows",
+      "n_BV_TW": 2,
+      "flip_BV_TW": 0.5,
+      "n_TV_TW": 2,
+      "flip_TV_TW": 0.0,
+      "delta": 0.5
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "topic": "Video games",
+      "n_BV_TW": 8,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 3,
+      "flip_TV_TW": 0.3333333333333333,
+      "delta": 0.6666666666666667
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Art",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 0.75,
+      "n_TV_TW": 1,
+      "flip_TV_TW": 0.0,
+      "delta": 0.75
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Geography",
+      "n_BV_TW": 6,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 1,
+      "flip_TV_TW": 0.0,
+      "delta": 1.0
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "History",
+      "n_BV_TW": 7,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 2,
+      "flip_TV_TW": 0.5,
+      "delta": 0.5
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Music",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 3,
+      "flip_TV_TW": 0.0,
+      "delta": 1.0
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Other",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 0,
+      "flip_TV_TW": NaN,
+      "delta": NaN
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Politics",
+      "n_BV_TW": 5,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 2,
+      "flip_TV_TW": 0.5,
+      "delta": 0.5
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Science and technology",
+      "n_BV_TW": 12,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 0,
+      "flip_TV_TW": NaN,
+      "delta": NaN
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Sports",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 3,
+      "flip_TV_TW": 0.0,
+      "delta": 1.0
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "TV shows",
+      "n_BV_TW": 5,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 2,
+      "flip_TV_TW": 0.0,
+      "delta": 1.0
+    },
+    {
+      "provider": "google_gemini",
+      "topic": "Video games",
+      "n_BV_TW": 8,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 2,
+      "flip_TV_TW": 0.5,
+      "delta": 0.5
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Art",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 0.75,
+      "n_TV_TW": 5,
+      "flip_TV_TW": 0.8,
+      "delta": -0.050000000000000044
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Geography",
+      "n_BV_TW": 6,
+      "flip_BV_TW": 0.8333333333333334,
+      "n_TV_TW": 5,
+      "flip_TV_TW": 0.8,
+      "delta": 0.033333333333333326
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "History",
+      "n_BV_TW": 6,
+      "flip_BV_TW": 0.5,
+      "n_TV_TW": 7,
+      "flip_TV_TW": 0.42857142857142855,
+      "delta": 0.07142857142857145
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Music",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 0.5,
+      "n_TV_TW": 3,
+      "flip_TV_TW": 0.6666666666666666,
+      "delta": -0.16666666666666663
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Other",
+      "n_BV_TW": 9,
+      "flip_BV_TW": 0.7777777777777778,
+      "n_TV_TW": 9,
+      "flip_TV_TW": 0.6666666666666666,
+      "delta": 0.11111111111111116
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Politics",
+      "n_BV_TW": 8,
+      "flip_BV_TW": 0.625,
+      "n_TV_TW": 9,
+      "flip_TV_TW": 0.4444444444444444,
+      "delta": 0.18055555555555558
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Science and technology",
+      "n_BV_TW": 8,
+      "flip_BV_TW": 0.75,
+      "n_TV_TW": 9,
+      "flip_TV_TW": 0.5555555555555556,
+      "delta": 0.19444444444444442
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Sports",
+      "n_BV_TW": 6,
+      "flip_BV_TW": 1.0,
+      "n_TV_TW": 8,
+      "flip_TV_TW": 0.875,
+      "delta": 0.125
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "TV shows",
+      "n_BV_TW": 5,
+      "flip_BV_TW": 0.4,
+      "n_TV_TW": 5,
+      "flip_TV_TW": 0.6,
+      "delta": -0.19999999999999996
+    },
+    {
+      "provider": "openai_gpt5",
+      "topic": "Video games",
+      "n_BV_TW": 4,
+      "flip_BV_TW": 0.25,
+      "n_TV_TW": 6,
+      "flip_TV_TW": 0.5,
+      "delta": -0.25
+    }
+  ],
+  "per_provider_summary": [
+    {
+      "provider": "anthropic_sonnet_46",
+      "n_topics": 10,
+      "median_delta": 0.6666666666666667,
+      "min_delta": 0.4603174603174603,
+      "max_delta": 1.0
+    },
+    {
+      "provider": "openai_gpt5",
+      "n_topics": 10,
+      "median_delta": 0.05238095238095239,
+      "min_delta": -0.25,
+      "max_delta": 0.19444444444444442
+    },
+    {
+      "provider": "google_gemini",
+      "n_topics": 8,
+      "median_delta": 0.875,
+      "min_delta": 0.5,
+      "max_delta": 1.0
+    }
+  ]
+}
