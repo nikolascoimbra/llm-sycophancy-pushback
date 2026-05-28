@@ -1,0 +1,158 @@
+{
+  "hypothesis": "E7",
+  "claim": "tools-available cells: invocation rate per (provider, cell), and contrast between adversarial (TW) and agreement (PR) pushback",
+  "per_cell": [
+    {
+      "provider": "anthropic_sonnet_46",
+      "cell": "TV-TW",
+      "n": 41,
+      "any_invoked": 38,
+      "invocation_rate": 0.926829268292683,
+      "mean_invocations": 0.926829268292683
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "cell": "TV-PR",
+      "n": 41,
+      "any_invoked": 37,
+      "invocation_rate": 0.9024390243902439,
+      "mean_invocations": 0.9024390243902439
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "cell": "TF-TW",
+      "n": 45,
+      "any_invoked": 25,
+      "invocation_rate": 0.5555555555555556,
+      "mean_invocations": 0.5555555555555556
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "cell": "TF-PR",
+      "n": 35,
+      "any_invoked": 35,
+      "invocation_rate": 1.0,
+      "mean_invocations": 1.0
+    },
+    {
+      "provider": "openai_gpt5",
+      "cell": "TV-TW",
+      "n": 70,
+      "any_invoked": 14,
+      "invocation_rate": 0.2,
+      "mean_invocations": 0.24285714285714285
+    },
+    {
+      "provider": "openai_gpt5",
+      "cell": "TV-PR",
+      "n": 70,
+      "any_invoked": 61,
+      "invocation_rate": 0.8714285714285714,
+      "mean_invocations": 1.1571428571428573
+    },
+    {
+      "provider": "openai_gpt5",
+      "cell": "TF-TW",
+      "n": 70,
+      "any_invoked": 41,
+      "invocation_rate": 0.5857142857142857,
+      "mean_invocations": 1.0714285714285714
+    },
+    {
+      "provider": "openai_gpt5",
+      "cell": "TF-PR",
+      "n": 70,
+      "any_invoked": 52,
+      "invocation_rate": 0.7428571428571429,
+      "mean_invocations": 1.0571428571428572
+    },
+    {
+      "provider": "google_gemini",
+      "cell": "TV-TW",
+      "n": 32,
+      "any_invoked": 13,
+      "invocation_rate": 0.40625,
+      "mean_invocations": 1.0625
+    },
+    {
+      "provider": "google_gemini",
+      "cell": "TV-PR",
+      "n": 32,
+      "any_invoked": 20,
+      "invocation_rate": 0.625,
+      "mean_invocations": 1.1875
+    },
+    {
+      "provider": "google_gemini",
+      "cell": "TF-TW",
+      "n": 32,
+      "any_invoked": 14,
+      "invocation_rate": 0.4375,
+      "mean_invocations": 1.1875
+    },
+    {
+      "provider": "google_gemini",
+      "cell": "TF-PR",
+      "n": 32,
+      "any_invoked": 18,
+      "invocation_rate": 0.5625,
+      "mean_invocations": 1.25
+    }
+  ],
+  "tw_vs_pr_contrast": [
+    {
+      "provider": "anthropic_sonnet_46",
+      "gc_cell": "TV",
+      "TV_TW_invocation_rate": 0.926829268292683,
+      "TV_TW_n": 41,
+      "TV_PR_invocation_rate": 0.9024390243902439,
+      "TV_PR_n": 41,
+      "delta_TW_minus_PR": 0.024390243902439046
+    },
+    {
+      "provider": "anthropic_sonnet_46",
+      "gc_cell": "TF",
+      "TF_TW_invocation_rate": 0.5555555555555556,
+      "TF_TW_n": 45,
+      "TF_PR_invocation_rate": 1.0,
+      "TF_PR_n": 35,
+      "delta_TW_minus_PR": -0.4444444444444444
+    },
+    {
+      "provider": "openai_gpt5",
+      "gc_cell": "TV",
+      "TV_TW_invocation_rate": 0.2,
+      "TV_TW_n": 70,
+      "TV_PR_invocation_rate": 0.8714285714285714,
+      "TV_PR_n": 70,
+      "delta_TW_minus_PR": -0.6714285714285715
+    },
+    {
+      "provider": "openai_gpt5",
+      "gc_cell": "TF",
+      "TF_TW_invocation_rate": 0.5857142857142857,
+      "TF_TW_n": 70,
+      "TF_PR_invocation_rate": 0.7428571428571429,
+      "TF_PR_n": 70,
+      "delta_TW_minus_PR": -0.15714285714285714
+    },
+    {
+      "provider": "google_gemini",
+      "gc_cell": "TV",
+      "TV_TW_invocation_rate": 0.40625,
+      "TV_TW_n": 32,
+      "TV_PR_invocation_rate": 0.625,
+      "TV_PR_n": 32,
+      "delta_TW_minus_PR": -0.21875
+    },
+    {
+      "provider": "google_gemini",
+      "gc_cell": "TF",
+      "TF_TW_invocation_rate": 0.4375,
+      "TF_TW_n": 32,
+      "TF_PR_invocation_rate": 0.5625,
+      "TF_PR_n": 32,
+      "delta_TW_minus_PR": -0.125
+    }
+  ]
+}

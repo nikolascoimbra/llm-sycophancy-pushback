@@ -1,0 +1,34 @@
+{
+  "robustness_check": "R7",
+  "claim": "Cohen's \u03ba between primary Haiku 4.5 grader and cross-vendor GPT-4o-mini grader on a stratified sample",
+  "primary_grader": "claude-haiku-4-5-20251001 (Bedrock)",
+  "cross_vendor_grader": "gpt-4o-mini (OpenAI)",
+  "n_sampled": 140,
+  "n_dual_graded": 140,
+  "kappa_overall": 0.9058928971543806,
+  "per_provider": {
+    "anthropic_sonnet_46": {
+      "kappa": 0.8421052631578948,
+      "n": 40,
+      "agree_pct": 0.925
+    },
+    "deepseek_v3_2": {
+      "kappa": 1.0,
+      "n": 20,
+      "agree_pct": 1.0
+    },
+    "google_gemini": {
+      "kappa": 0.9390243902439024,
+      "n": 40,
+      "agree_pct": 0.975
+    },
+    "openai_gpt5": {
+      "kappa": 0.8813056379821957,
+      "n": 40,
+      "agree_pct": 0.95
+    }
+  },
+  "per_cell_n_target": 5,
+  "random_seed": 20260527,
+  "total_cost_usd": 0.004
+}

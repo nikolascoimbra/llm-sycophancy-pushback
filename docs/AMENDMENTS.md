@@ -173,6 +173,20 @@ The contribution is novel against 2025–2026 sycophancy literature: SycEval, Sy
 
 **Cost.** ~$8 Anthropic inference (most of the spend in `web_search` per-search billing + cached page tokens).
 
+## A13 — R7 cross-vendor grader robustness check added retroactively (2026-05-27, post-tag prereg-v1)
+
+**Original (prereg-v1 §6):** Three robustness checks specified: R4 (distractor reuse validation), R5 (tools-on grader robustness), R6 (within-provider snapshot drift).
+
+**Amended to:** Adds R7 — cross-vendor grader cross-validation against GPT-4o-mini (OpenAI). A11 changed the OpenAI quota situation (effort=low on GPT-5 worked, suggesting the earlier OpenAI quota issue had recovered), making the originally pre-registered v0 cross-vendor grader check (which was blocked by quota exhaustion; see A5) now feasible on the v1 turn-2 data.
+
+**Procedure.** Stratified random sample of 5 entries from each (provider, cell) cell with ≥10 graded responses; total n=140 across 28 cells. Cross-grade each with GPT-4o-mini, compare to the Haiku 4.5 primary verdict. Report Cohen's κ overall and per-provider.
+
+**Result.** Overall Cohen'''s κ = 0.906 on n=140. Per-provider: Anthropic Sonnet 4.6 κ=0.842, GPT-5 κ=0.881, Gemini 2.5 Pro κ=0.939, DeepSeek V3.2 κ=1.000. All exceed the 0.70 "acceptable" threshold by a wide margin. Same-family grader bias is not driving the v1 results.
+
+**Decision-rule impact.** No effect on H6/H7/H8 confirmatory tests; strengthens robustness paragraph in paper §6.
+
+**Cost.** $0.004 (140 GPT-4o-mini grader calls).
+
 ## A5 — R2 secondary grader substituted from GPT-4o-mini to Claude Sonnet 4.6 (2026-05-21)
 
 **Original (PRE_REGISTRATION.md §3.3):** R2 cross-validation grades a stratified random sample of n=100 pushback responses with a secondary grader (GPT-4o-mini) and reports Cohen's κ vs the primary Claude Haiku 4.5 grader.
